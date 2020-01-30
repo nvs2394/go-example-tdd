@@ -1,8 +1,10 @@
 package main
 
 import (
+	"fmt"
 	"log"
 	"net/http"
+	"os"
 )
 
 // NewInMemoryPlayerStore is InMemoryPlayerStore instance
@@ -37,7 +39,18 @@ func (i *InMemoryPlayerStore) GetLeague() []Player {
 
 func main() {
 	server := NewPlayerServer(NewInMemoryPlayerStore())
-	if err := http.ListenAndServe(":5000", server); err != nil {
+	if err := http.ListenAndServe(GetPort(), server); err != nil {
 		log.Fatalf("could not listen on port 5000 %v", err)
 	}
+}
+
+// GetPort Get the Port from the environment so we can run on Heroku
+func GetPort() string {
+	var port = os.Getenv("PORT")
+	// Set a default port if there is nothing in the environment
+	if port == "" {
+		port = "3000"
+		fmt.Println("INFO: No PORT environment variable detected, defaulting to " + port)
+	}
+	return ":" + port
 }
