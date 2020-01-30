@@ -1,0 +1,6 @@
+{
+	"ImportPath": "github.com/nvs2394/server-game",
+	"GoVersion": "go1.12",
+	"GodepVersion": "v80",
+	"Deps": []
+}
