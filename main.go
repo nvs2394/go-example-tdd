@@ -7,38 +7,20 @@ import (
 	"os"
 )
 
-// NewInMemoryPlayerStore is InMemoryPlayerStore instance
-func NewInMemoryPlayerStore() *InMemoryPlayerStore {
-	return &InMemoryPlayerStore{map[string]int{}}
-}
-
-// InMemoryPlayerStore is store the player in memory
-type InMemoryPlayerStore struct {
-	store map[string]int
-}
-
-// GetPlayerScore from memory
-func (i *InMemoryPlayerStore) GetPlayerScore(name string) int {
-	return i.store[name]
-}
-
-// RecordWin is record the user then store in memory
-func (i *InMemoryPlayerStore) RecordWin(name string) {
-	i.store[name]++
-}
-
-// GetLeague is show the list of player with wins
-func (i *InMemoryPlayerStore) GetLeague() []Player {
-	var league []Player
-
-	for name, wins := range i.store {
-		league = append(league, Player{name, wins})
-	}
-	return league
-}
+const dbFileName = "game.db.json"
 
 func main() {
-	server := NewPlayerServer(NewInMemoryPlayerStore())
+	//Get data from json file
+	db, err := os.OpenFile(dbFileName, os.O_RDWR|os.O_CREATE, 0666)
+	if err != nil {
+		log.Fatalf("problem opening %s %v", dbFileName, err)
+	}
+	store, err := NewFileSystemPlayerStore(db)
+
+	if err != nil {
+		log.Fatalf("problem creating file system player store, %v ", err)
+	}
+	server := NewPlayerServer(store)
 	if err := http.ListenAndServe(GetPort(), server); err != nil {
 		log.Fatalf("could not listen on port 5000 %v", err)
 	}
